@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Share Youtube Subscriptions</title>
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        #header {
+            padding: 0 20px;
+            background-color: whitesmoke;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+        }
+
+        #user-header {
+            align-self: center;
+
+        }
+
+        #content {
+            backgroundcolor: aqua;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 20px;
+            padding-top: 50px;
+            gap: 25px;
+            overflow: scroll;
+
+        }
+
+        .card {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 600px;
+            height: 150px;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: hsl(37, 67%, 92%);
+            border: 1px solid hsl(39, 90%, 80%);
+
+            display: flex;
+
+        }
+
+        .channel-logo {
+            box-sizing: border-box;
+            flex-grow: 0;
+            width: 12%;
+            min-width: 60px;
+            max-width: 120px;
+            height: min-content;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+        }
+
+        .channel-info {
+            box-sizing: border-box;
+            padding: 0em 0.6em;
+            backgroundcolor: blue;
+            overflow: hidden;
+        }
+
+        .channel-name {
+            height: 25%;
+            font-weight: bold;
+            color: rgb(54, 54, 43);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        #footer {
+            background-color: black;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="header">
+        <img id="logo-header" src="/static/logo.svg" width="70px" height="70px">
+        <div id="user-header"><strong id="title-header">subscribes/</strong><em id="username-header">darpan5552</em>
+        </div>
+    </section>
+    <section id="content">
+    {% for channel in response['items'] %}
+        <div class="card">
+            <img class="channel-logo" src="{{channel.snippet.thumbnails.default.url}}">
+            <div class="channel-info">
+                <div class="channel-name">{{channel.snippet.title}}</div>
+                <div class="channel-description">{{channel.snippet.description}}</div>
+            </div>
+        </div>
+    {% endfor %}
+
+    </section>
+        <div id="footer">Copyright: Dynamic Challengers 2023</div>
+</body>
+
+
+</html>

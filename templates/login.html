@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home Page</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            body {
+                margin: 0px;
+            }
+            #login-button {
+                display: flex;
+                height: fit-content;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 16px;
+                font-weight: 600;
+                border-radius: 8px;
+                border-width: 0;
+                padding: 14px 16px;
+                background-color: #4cc366;
+            }
+            #header {
+                background-color: #85dcff;
+                
+            }
+            #pri-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 32px;
+            }
+            #sec-header {
+                display: grid;
+                padding: 10px 32px;
+                grid-template-columns: repeat(3, max-content);
+                gap: 10px;
+                font-family: Verdana, Helvetica, sans-serif;
+                font-size: 28px;
+            }
+            #sec-header-2 {
+                grid-row: 2;
+                grid-column: 2;
+                font-weight: 1000;
+                font-size: 40px;
+            }
+            #sec-header-3 {
+                grid-row: 3;
+                grid-column: 3;
+            }
+            #content {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                padding: 48px;
+                font-size: 22px;
+                font-family: Arial;
+                background-color: rgba(217,217,217,.52);
+            }
+            #features {
+                display: grid;
+                grid-template-columns: repeat(3, max-content);
+                background-color: #b52727;
+                padding: 48px;
+                font-family: Arial, Helvetica, sans-serif
+            }
+            #features > span {
+                color: rgba(255,255,255,.88);
+                font-size: 38px;
+                font-weight: 800;
+                
+            }
+            #features > ul {
+                display: flex;
+                flex-direction: column;
+                grid-column: 2/3;
+                grid-row: 2; 
+                list-style-type: square; 
+                color: white; 
+                font-size: 22px;
+                font-weight: 600;
+                gap: 16px;
+            }
+            .disabled-feature {
+                list-style-type: circle;
+                color: #999;
+            }
+            
+            #footer {
+                background-color: black;
+                color: white;
+                padding: 48px;
+                font-weight: 700;
+            }
+            #footer > #contact {
+                font-size:18px; 
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            #footer > #endnote {
+                font-family: Impact; 
+                text-align: center; 
+                padding: 16px;
+                font-weight: 400;
+            }
+            #footer a {
+                color: inherit;
+                text-decoration: inherit;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <div id="pri-header">
+            <img src="/static/logo.svg" width="100px">
+            <button id="login-button" type="button" onclick='location.href="/login"'>Login/SignUp with &nbsp;<i class="fa-brands fa-google"></i></button>
+            </div>
+        
+        <div id="sec-header">
+            <div id="sec-header-1">share your</div>
+            <div id="sec-header-2">youtube subscribes</div>
+            <div id="sec-header-3">list</div>
+
+        </div>
+        </div>
+        <div id="content">
+            <img src="/static/flat-social-networks.png">
+            <span style="width: fit-content;">Other social media, say <b style="color:#4267b2">Facebook</b> or <b style="color: #e1306c">Instagram</b><br>
+are truly social, everyone can connect to another.<br>
+You can <u>see what interested your friends</u>.<br><br>
+
+<b style="color: #e80c0c;">Youtube</b> is different, being a dark place, you have to<br>
+<u>manually look for good stuffs</u> by trying them one by one.<br><br>
+
+Many times we tend to share our likes and interests<br>
+with people around we live with.<br><br>
+
+So, here we are with a way to <u>share your interested youtube<br>
+channels</u> with your friends. Just <b style="color: #4cc366;">login</b> and share the link,<br>
+for the world to see.</span>
+        
+        </div>
+        <div id="features">
+            <span>Features</span>
+            <span style="grid-column: 2;">&ensp;:</span>
+            <ul>
+                <li>See subscribed channels</li>
+                <li class="disabled-feature">Hide selected channels</li>
+                <li class="disabled-feature">Group channels for better organisation</li>
+                <li class="disabled-feature">Arrange your channels in order you like</li>
+                <li class="disabled-feature">Add custom description for any channel</li>
+            </ul>
+        </div>
+        <div id="footer">
+            <div id="contact"><a href="http://telegram.me/dcindia_suopprt/8"><i class="fa-brands fa-telegram"></i>&nbsp;Contact us on Telegram</a></div>
+            <div id="endnote"><a href="http://gtihub.com/dcindia">Made with :<span style="color:magenta">love</span>: by <b><i style="font-family: Merriweather;">dcindia</i></b></a></div>
+        </div>
+    </body>
+</html>
