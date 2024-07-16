@@ -2,10 +2,18 @@
 <html>
     <head>
         <title>Home Page</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
             body {
                 margin: 0px;
+            }
+
+            button:hover {
+                background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
+            }
+            button > .icon {
+                align-self: center;
             }
             #login-button {
                 display: flex;
@@ -29,29 +37,28 @@
                 padding: 32px;
             }
             #sec-header {
-                display: grid;
+                
                 padding: 10px 32px;
                 grid-template-columns: repeat(3, max-content);
                 gap: 10px;
                 font-family: Verdana, Helvetica, sans-serif;
-                font-size: 28px;
+                font-size: calc(1em + 1vw);
             }
             #sec-header-2 {
-                grid-row: 2;
-                grid-column: 2;
+                padding-left: 10%;
                 font-weight: 1000;
-                font-size: 40px;
+                font-size: calc(1em + 1vw);
             }
             #sec-header-3 {
-                grid-row: 3;
-                grid-column: 3;
+                padding-left: 45%;
+                font-size: calc(0.8em + 1vw);
             }
             #content {
                 display: flex;
                 justify-content: space-around;
                 align-items: center;
                 padding: 48px;
-                font-size: 22px;
+                font-size: x-large;
                 font-family: Arial;
                 background-color: rgba(217,217,217,.52);
             }
@@ -64,10 +71,12 @@
             }
             #features > span {
                 color: rgba(255,255,255,.88);
-                font-size: 38px;
+                font-size: calc(0.8em + 1vw);
                 font-weight: 800;
                 
             }
+
+            
             #features > ul {
                 display: flex;
                 flex-direction: column;
@@ -75,9 +84,9 @@
                 grid-row: 2; 
                 list-style-type: square; 
                 color: white; 
-                font-size: 22px;
+                font-size: calc(0.8em + .5vw);
                 font-weight: 600;
-                gap: 16px;
+                gap: 1.3vw;
             }
             .disabled-feature {
                 list-style-type: circle;
@@ -87,11 +96,11 @@
             #footer {
                 background-color: black;
                 color: white;
-                padding: 48px;
+                padding: 4vh;
                 font-weight: 700;
             }
             #footer > #contact {
-                font-size:18px; 
+                font-size:.8em; 
                 font-family: Arial, Helvetica, sans-serif;
             }
             #footer > #endnote {
@@ -105,13 +114,36 @@
                 text-decoration: inherit;
             }
 
+            @media screen and (max-width: 768px) {
+                #pri-header {
+                    padding: 16px;
+                }
+                #sec-header {
+                    padding: 16px;
+                }
+                #content {
+                    flex-direction: column;
+                    gap: 16px;
+                    padding: 20px;
+                    font-size: medium;
+                }
+                .hide-on-small {
+                    display: none;
+                }
+                #features {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 20px;
+                }
+            }
+
         </style>
     </head>
     <body>
         <div id="header">
             <div id="pri-header">
-            <img src="/static/logo.svg" width="100px">
-            <button id="login-button" type="button" onclick='location.href="/login"'>Login/SignUp with &nbsp;<i class="fa-brands fa-google"></i></button>
+            <img src="/static/logo.svg" width="25%" style="max-width: 100px;">
+            <button id="login-button" type="button" onclick='location.href="/login"'>Login/SignUp<div class="hide-on-small">&nbsp;with </div>&nbsp;<i class="fa-brands fa-google icon"></i> </button>
             </div>
         
         <div id="sec-header">
@@ -133,14 +165,13 @@ You can <u>see what interested your friends</u>.<br><br>
 Many times we tend to share our likes and interests<br>
 with people around we live with.<br><br>
 
-So, here we are with a way to <u>share your interested youtube<br>
+So, here we are providing with a way to <u>share your interested youtube<br>
 channels</u> with your friends. Just <b style="color: #4cc366;">login</b> and share the link,<br>
 for the world to see.</span>
         
         </div>
         <div id="features">
-            <span>Features</span>
-            <span style="grid-column: 2;">&ensp;:</span>
+            <span>Features:</span>
             <ul>
                 <li>See subscribed channels</li>
                 <li class="disabled-feature">Hide selected channels</li>
@@ -150,7 +181,7 @@ for the world to see.</span>
             </ul>
         </div>
         <div id="footer">
-            <div id="contact"><a href="http://telegram.me/dcindia_suopprt/8"><i class="fa-brands fa-telegram"></i>&nbsp;Contact us on Telegram</a></div>
+            <div id="contact"><a href="http://telegram.me/dcindia_support/8"><i class="fa-brands fa-telegram"></i>&nbsp;Contact us on Telegram</a></div>
             <div id="endnote"><a href="http://gtihub.com/dcindia">Made with :<span style="color:magenta">love</span>: by <b><i style="font-family: Merriweather;">dcindia</i></b></a></div>
         </div>
     </body>

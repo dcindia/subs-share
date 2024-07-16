@@ -3,10 +3,15 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Share Youtube Subscriptions</title>
+    <title>subscribes/{{username}}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             margin: 0px;
+        }
+
+        button:hover {
+            background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
         }
 
         #header {
@@ -32,17 +37,37 @@
             justify-content: flex-start;
             align-items: center;
             padding: 0 20px;
-            padding-top: 50px;
+            margin-top: 50px;
             gap: 25px;
             overflow: scroll;
 
+        }
+
+        #banner {
+            
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: lightpink;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 7px;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        #revoke-permission {
+            background-color: coral;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
         }
 
         .card {
             box-sizing: border-box;
             width: 100%;
             max-width: 600px;
-            height: 150px;
+            height: min-content;
             border-radius: 10px;
             padding: 20px;
             background-color: hsl(37, 67%, 92%);
@@ -71,12 +96,23 @@
         }
 
         .channel-name {
-            height: 25%;
+            height: 1.5em;
             font-weight: bold;
             color: rgb(54, 54, 43);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+        }
+
+        .channel-description {
+            line-height: 1em;
+            height: 4em;
+            
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            /* https://hackingui.com/a-pure-css-solution-for-multiline-text-truncation/ */
         }
 
         #footer {
@@ -91,9 +127,13 @@
 
 <body>
     <section id="header">
-        <img id="logo-header" src="/static/logo.svg" width="70px" height="70px">
-        <div id="user-header"><strong id="title-header">subscribes/</strong><em id="username-header">darpan5552</em>
+        <a href="/"><img id="logo-header" src="/static/logo.svg" width="70px" height="70px"></a>
+        <div id="user-header"><strong id="title-header">subscribes/</strong><em id="username-header">{{username}}</em>
         </div>
+    </section>
+    <section id="banner" style="display:{% if signout_banner %}flex{% else %}none{% endif %};">
+        <p>To sign out from our service, you can visit google-third-party permissions(below button), and revoke the permisions you provided to <em>yt-subscribes</em>. We would still have your name and email stored with us, but we don't store any of your personal data on our servers.</p>
+        <button id="revoke-permission" onclick='location.href="https:\/\/myaccount.google.com/connections"'><i class="fa-solid fa-up-right-from-square"></i>&nbsp;Revoke permission and Signout</button>
     </section>
     <section id="content">
     {% for channel in response['items'] %}

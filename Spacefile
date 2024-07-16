@@ -1,0 +1,17 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: yt-subscribes
+    src: ./
+    engine: python3.9
+    run: gunicorn app:app
+    dev: gunicorn app:app -b 0.0.0.0:5000
+    primary: true
+    presets:
+      env:
+        - name: CONSUMER_KEY
+          default: "%%consumer key obtained from google%%"
+        - name: CONSUMER_SECRET
+          default: "%%secret of respective key%%"
+        - name: SQLITE_CONNECTION
+          default: "%%connection link obtained from sqlitecloud, can use local database instead"
