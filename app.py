@@ -105,12 +105,12 @@ def login():
                 print(result2.user.credentials.provider_type_class().to_tuple(result2.user.credentials))
                 userdata = result2.user.data
                 username = userdata['email'].rsplit('@', 1)[0]
-                INSERT_COMMAND = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET credentials=excluded.credentials"
+                INSERT_COMMAND = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET credentials=excluded.credentials"
 
                 db = sqlite.connect(DATABASE_PATH)
 
                 if result2.user.credentials.refresh_token:
-                    db.execute(INSERT_COMMAND, (userdata['sub'], userdata['email'], username, userdata['name'], userdata['given_name'], result2.user.credentials.serialize()))
+                    db.execute(INSERT_COMMAND, (userdata['sub'], userdata['email'], username, userdata['name'], userdata['given_name'], result2.user.credentials.serialize(), 1))
                     db.commit()
 
             update_fresh_login(db, userdata['sub'], 1)
