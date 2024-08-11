@@ -19,7 +19,7 @@ auth_config = {'google_login': {'class_': oauth2.Google,
                           'scope': ['profile', 'email'],
                           'offline': True,
                           'user_authorization_params': {'approval_prompt': "force"},
-                          'id': 1},  # not working, insufficient scope
+                          'id': 1},
                 'youtube_permission': {'class_': oauth2.Google,
                           'consumer_key': os.environ.get("CONSUMER_KEY"),
                           'consumer_secret': os.environ.get("CONSUMER_SECRET"),
@@ -59,6 +59,10 @@ def index():
 def sample():
     response = json.load(open('response.json'))
     return render_template('index.html.j2', response=response)
+
+@app.route('/privacy-policy/')
+def privacy_policy():
+  return render_template('privacypolicy.html')
 
 
 @app.route('/login/', methods=['GET', 'POST'])
