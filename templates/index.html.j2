@@ -115,6 +115,11 @@
             /* https://hackingui.com/a-pure-css-solution-for-multiline-text-truncation/ */
         }
 
+        .card a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+
         #footer {
             background-color: black;
             color: white;
@@ -138,9 +143,13 @@
     <section id="content">
     {% for channel in response['items'] %}
         <div class="card">
-            <img class="channel-logo" src="{{channel.snippet.thumbnails.default.url}}">
+            <a href="https://youtube.com/channel/{{channel.snippet.resourceId.channelId}}">
+                <img class="channel-logo" src="{{channel.snippet.thumbnails.default.url}}">
+            </a>
             <div class="channel-info">
-                <div class="channel-name">{{channel.snippet.title}}</div>
+                <a href="https://youtube.com/channel/{{channel.snippet.resourceId.channelId}}">
+                    <div class="channel-name">{{channel.snippet.title}}</div>
+                </a>
                 <div class="channel-description">{{channel.snippet.description}}</div>
             </div>
         </div>
