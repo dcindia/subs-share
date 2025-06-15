@@ -4,4 +4,5 @@ Flask_Executor==1.0.0
 icecream==2.1.3
 sqlitecloud==0.0.78
 Werkzeug==3.0.3
+pyjwt==2.10.1
 gunicorn

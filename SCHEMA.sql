@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
     name        TEXT,
     given_name  TEXT,
     credentials TEXT,
-    fresh_login INTEGER (1) DEFAULT (1) 
+    fresh_login INTEGER (1) DEFAULT (1),
+    hidden_channels TEXT DEFAULT ('[]') -- Comma-separated list of channel IDs
 );

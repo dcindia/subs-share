@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>subsshare/{{username}}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        button:hover {
+            background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
+        }
+
+        #header {
+            padding: 0 20px;
+            background-color: whitesmoke;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #user-header {
+            align-self: center;
+
+        }
+
+        #content {
+            backgroundcolor: aqua;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 20px;
+            margin-top: 50px;
+            gap: 25px;
+            overflow: scroll;
+
+        }
+
+        #banner {
+            
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: lightpink;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 7px;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        #revoke-permission {
+            background-color: coral;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .card {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 600px;
+            height: min-content;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: hsl(37, 67%, 92%);
+            border: 1px solid hsl(39, 90%, 80%);
+
+            display: flex;
+            position: relative;
+        }
+        /* Style for the card when it is disabled */
+        .card.disabled {
+            pointer-events: none; /* Disable interactions for the card */
+            opacity: 0.5; /* Make the card semi-transparent */
+        }
+        /* Style for the hide button when the card is disabled */
+        .card.disabled #hide_button {
+            pointer-events: auto; /* Enable interactions for the hide button */
+        }
+
+        #hide_button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: whitesmoke;
+            border: 3px solid hsl(39, 90%, 80%);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .channel-logo {
+            box-sizing: border-box;
+            flex-grow: 0;
+            width: 12%;
+            min-width: 60px;
+            max-width: 120px;
+            height: min-content;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+        }
+
+        .channel-info {
+            box-sizing: border-box;
+            padding: 0em 0.6em;
+            backgroundcolor: blue;
+            overflow: hidden;
+        }
+
+        .channel-name {
+            height: 1.5em;
+            font-weight: bold;
+            color: rgb(54, 54, 43);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .channel-description {
+            line-height: 1em;
+            height: 4em;
+            
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            /* https://hackingui.com/a-pure-css-solution-for-multiline-text-truncation/ */
+        }
+
+        .card a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+
+        #footer {
+            background-color: black;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="header">
+        <a href="/"><img id="logo-header" src="/static/logo.svg" width="70px" height="70px"></a>
+        <div id="user-header"><strong id="title-header">subsshare/</strong><em id="username-header">{{username}}</em>
+        </div>
+    </section>
+    <section id="banner" style="display:{% if signout_banner %}flex{% else %}none{% endif %};">
+        <p>To sign out from our service, you can visit google-third-party permissions(below button), and revoke the permisions you provided to <em>subsshare</em>. We would still have your name and email stored with us, but we don't store any of your personal data on our servers.</p>
+        <button id="revoke-permission" onclick='location.href="https:\/\/myaccount.google.com/connections"'><i class="fa-solid fa-up-right-from-square"></i>&nbsp;Revoke permission and Signout</button>
+    </section>
+    <section id="content">
+    {% for channel in response['items'] %}
+    {% set channelId = channel.snippet.resourceId.channelId%}
+    {% if auth or channelId not in hidden_channels%}
+        <div class="card {% if channelId in hidden_channels %}disabled{% endif %}">
+            <button id="hide_button" class="auth">
+                <i class="fa-solid fa-eye"></i></button>
+            <a href="https://youtube.com/channel/{{channelId}}">
+                <img class="channel-logo" src="{{channel.snippet.thumbnails.default.url}}">
+            </a>
+            <div class="channel-info">
+                <a href="https://youtube.com/channel/{{channel.snippet.resourceId.channelId}}">
+                    <div class="channel-name">{{channel.snippet.title}}</div>
+                </a>
+                <div class="channel-description">{{channel.snippet.description}}</div>
+            </div>
+            
+        </div>
+        </div>
+
+    {% endif%}  
+    {% endfor %}
+
+    </section>
+        <div id="footer">Copyright: Dynamic Challengers 2023</div>
+    
+    {% if auth %}
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Ensure the correct icon is set for cards with the 'disabled' class on page load
+        document.querySelectorAll('.card').forEach(card => {
+            const button = card.querySelector('#hide_button');
+            const icon = button.querySelector('i');
+
+            if (card.classList.contains('disabled')) {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Add event listener to all hide buttons
+        document.querySelectorAll('#hide_button').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                // Get the channel ID from the parent card
+                const card = button.closest('.card');
+                const channelId = card.querySelector('a').href.split('/channel/')[1];
+
+                // Get the icon inside the button
+                const icon = button.querySelector('i');
+
+                // Retrieve the JWT token from sessionStorage
+                const jwtToken = sessionStorage.getItem('jwtToken');
+                if (!jwtToken) {
+                    console.error('JWT token not found in sessionStorage');
+                    return;
+                }
+
+                // Toggle between 'fa-eye' and 'fa-eye-slash'
+                if (icon.classList.contains('fa-eye')) {
+                    try {
+                        const response = await fetch(`/modify/hide/`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${jwtToken}`, // Include the JWT token in the Authorization header
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'include', // Include cookies in the request
+                            body: JSON.stringify({ channelId: channelId }) // Send the channel ID in the request body
+                        });
+
+                        if (response.ok) {
+                            console.log('Channel hidden successfully');
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                            
+                            //Disable interactions for the card
+                            card.classList.add('disabled'); // Add a class to disable interactions
+                            // card.style.display = 'none'; // Hide the card on success
+                        } else {
+                            console.error('Failed to hide channel:', await response.text());
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                    
+                } else {
+                    try {
+                        const response = await fetch(`/modify/unhide/`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${jwtToken}`, // Include the JWT token in the Authorization header
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'include', // Include cookies in the request
+                            body: JSON.stringify({ channelId: channelId }) // Send the channel ID in the request body
+                        });
+
+                        if (response.ok) {
+                            console.log('Channel un-hidden successfully');
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                            card.classList.remove('disabled'); // Enable interactions for the card
+                        } else {
+                            console.error('Failed to unhide channel:', await response.text());
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endif %}
+</body>
+
+
+</html>

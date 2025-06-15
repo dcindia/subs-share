@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect, url_for, make_response
+from flask import Flask, request, render_template, session, redirect, url_for, make_response, jsonify
 from werkzeug.datastructures import ImmutableMultiDict
 from flask_executor import Executor
 import json
@@ -12,6 +12,7 @@ from authomatic import Authomatic
 from authomatic.providers import oauth2
 from authomatic.adapters import WerkzeugAdapter
 from icecream import ic
+import jwt
 
 auth_config = {'google_login': {'class_': oauth2.Google,
                           'consumer_key': os.environ.get("CONSUMER_KEY"),
@@ -28,13 +29,14 @@ auth_config = {'google_login': {'class_': oauth2.Google,
                           'user_authorization_params': {'approval_prompt': "auto", "include_granted_scopes": "true"},
                           'id': 2}
                           }
+#TODO:Force regenerate google refresh token if failing
 
-authomatic = Authomatic(auth_config, 'dcindia123', logging_level=logging.DEBUG)
+authomatic = Authomatic(auth_config, os.environ.get('SECRET_KEY'), logging_level=logging.DEBUG)
 
 app = Flask(__name__)
 executor = Executor(app)
-app.config['SECRET_KEY'] = "$$enter_secret_here$$"
-DATABASE_PATH = "./users.db"
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+#DATABASE_PATH = "./users.db"
 DATABASE_PATH = os.environ.get("SQLITE_CONNECTION")
 # toolbar = DebugToolbarExtension(app)
 
@@ -51,7 +53,6 @@ def update_fresh_login(db, sub, value):
 
 @app.route('/')
 def index():
-    ic(request.base_url)
     return render_template('home.html')
 
 
@@ -102,34 +103,60 @@ def login():
                 if not (result2.user.name and result2.user.id):
                     result2.user.update()
 
-                print(result2.user.to_dict())
-                print("*")
-                print(result2.provider)
-                print(result2.user.data)
+                ic(result2.user.to_dict())
                 print(result2.user.credentials.provider_type_class().to_tuple(result2.user.credentials))
                 userdata = result2.user.data
                 username = userdata['email'].rsplit('@', 1)[0]
-                INSERT_COMMAND = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET credentials=excluded.credentials"
+                INSERT_COMMAND = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET credentials=excluded.credentials"
 
                 db = sqlite.connect(DATABASE_PATH)
 
                 if result2.user.credentials.refresh_token:
-                    db.execute(INSERT_COMMAND, (userdata['sub'], userdata['email'], username, userdata['name'], userdata['given_name'], result2.user.credentials.serialize(), 1))
+                    db.execute(INSERT_COMMAND, (userdata['sub'], userdata['email'], username, userdata['name'], userdata['given_name'], result2.user.credentials.serialize(), 1, []))
                     db.commit()
 
             update_fresh_login(db, userdata['sub'], 1)
             response = result2.provider.access("https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&maxResults=100&mine=true")
             #session['signout_banner'] = True
-            return redirect(url_for('main', username=username))
+            jwtpayload = {"sub": userdata['sub'], "username": username}
+            jwt_token = jwt.encode(jwtpayload, os.environ.get('SECRET_KEY'), algorithm='HS256')
+            
+            # Return a response with a script to set sessionStorage and redirect
+            return f"""
+                <form id="redirectForm" action="/{username}/" method="POST">
+                    <input type="hidden" name="auth_token" value="{jwt_token}">
+                </form>
+                <script>
+                    // Store the JWT token in sessionStorage
+                    sessionStorage.setItem('jwtToken', '{jwt_token}');
+                    // Automatically submit the form
+                    document.getElementById('redirectForm').submit();
+                </script>
+                """
 
     return response
 
 
-@app.route('/<username>/')
-def main(username):
+@app.route('/<username>/', methods=['GET', 'POST'])
+def main(username, auth=False): #Change auth to False in production
     #signout_banner = session.get('signout_banner', default=False)
 
-    fetch_command = "SELECT json_object('sub', sub, 'given_name', given_name, 'credentials', credentials, 'fresh_login', fresh_login) FROM users WHERE username IS ?;"
+    auth = request.form.get('auth_token')  # Retrieve the JWT token from the POST request
+    if auth:
+        # Decode and verify the JWT token (optional)
+        try:
+            payload = jwt.decode(auth, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+            print(f"Decoded JWT Payload: {payload}")
+        except jwt.ExpiredSignatureError:
+            return "Unauthorized: Token expired", 401
+        except jwt.InvalidTokenError:
+            return "Unauthorized: Invalid token", 401
+        
+        if payload.get('username') != username:
+            return "Unauthorized: Invalid username in token", 401
+
+
+    fetch_command = "SELECT json_object('sub', sub, 'given_name', given_name, 'credentials', credentials, 'fresh_login', fresh_login, 'hidden_channels', hidden_channels) FROM users WHERE username IS ?;"
     db = sqlite.connect(DATABASE_PATH)
     #db.row_factory = sqlite.Row
     user = db.execute(fetch_command, (username,)).fetchone()
@@ -141,6 +168,10 @@ def main(username):
     else:
         user = json.loads(user[0]) #sqlitecloud returned result as tuple, so we need to extract the first element
         signout_banner = user['fresh_login']
+        if user['hidden_channels'] is None:
+            hidden_channels = []
+        else:
+            hidden_channels = json.loads(user['hidden_channels'])
 
     credentials = authomatic.credentials(user['credentials'])
 
@@ -159,11 +190,71 @@ def main(username):
     response = authomatic.access(credentials, "https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&maxResults=100&mine=true")
     if response.status == 200:
         executor.submit(update_fresh_login, db, user['sub'], 0)
-        return render_template('index.html.j2', username=username, response=response.data, signout_banner=signout_banner)
+        
+        if auth:
+            return render_template('admin-index.html.j2', username=username, response=response.data, hidden_channels=hidden_channels, signout_banner=signout_banner, auth=auth)
+        else:
+            
+            return render_template('index.html.j2', username=username, response=response.data, hidden_channels=hidden_channels)
+
     else:
         return response.data
         # TODO: tell user to login again
         # TODO: provide an option to logout (maybe not required if force login every time)
         # DONE: give an option to user to delete his data
         # DONE: count access in database, useful in banner control
-        # TODO: make app online using deta and sqlitecloud
+        # DONE: make app online using deta and sqlitecloud
+
+@app.route('/modify/hide/', methods=['PUT'])
+def hide():
+    ic(request.data)
+    # gets reverse parameter from the request and converts it to boolean using lower() and comparison
+    reverse = request.args.get('reverse', default='false').lower() == 'true'
+
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "Unauthorized: Missing or invalid Authorization header"}), 401
+
+    # Extract the token from the header
+    token = auth_header.split(' ')[1]
+
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid token"}), 401
+    
+    sub = payload.get('sub')
+    username = payload.get('username')
+    
+    channel_id = request.json.get('channelId')
+    if not channel_id:
+            return jsonify({"error": "Channel ID is required"}), 400
+    
+    db = sqlite.connect(DATABASE_PATH)
+    result = db.execute("SELECT hidden_channels FROM users WHERE sub = ? AND username = ?;", (sub, username)).fetchone()
+
+    hidden_channels = result[0]
+
+    if hidden_channels is None:
+        hidden_channels = json.dumps([])  # Initialize as an empty list if None
+    hidden_channels = json.loads(hidden_channels)
+    if reverse:
+        if channel_id in hidden_channels:
+            hidden_channels.remove(channel_id)
+    else:
+        if channel_id not in hidden_channels:
+            hidden_channels.append(channel_id)
+    hidden_channels = json.dumps(hidden_channels)
+    update_command = "UPDATE users SET hidden_channels = ? WHERE sub = ? AND username = ?;"
+    db.execute(update_command, (hidden_channels, sub, username))
+    db.commit()
+    ic(hidden_channels)
+
+    return "Sucess", 200
+    
+@app.route('/modify/unhide/', methods=['PUT'])
+def unhide():
+    return redirect(url_for('hide', reverse=True))
