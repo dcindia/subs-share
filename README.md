@@ -21,7 +21,7 @@ for the world to see.
 
 ## Features:
 - [x] See subscribed channels
-- [ ] Hide selected channels
+- [x] Hide selected channels
 - [ ] Group channels for better organisation
 - [ ] Arrange your channels in order you like
 - [ ] Add custom description for any channel

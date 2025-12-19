@@ -4,8 +4,8 @@ from flask_executor import Executor
 import json
 import os
 import re
-#import sqlite3 as sqlite
-import sqlitecloud as sqlite
+import sqlite3 as sqlite
+#import sqlitecloud as sqlite
 import logging
 #from flask_debugtoolbar import DebugToolbarExtension
 from authomatic import Authomatic
@@ -36,8 +36,8 @@ authomatic = Authomatic(auth_config, os.environ.get('SECRET_KEY'), logging_level
 app = Flask(__name__)
 executor = Executor(app)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
-#DATABASE_PATH = "./users.db"
-DATABASE_PATH = os.environ.get("SQLITE_CONNECTION")
+DATABASE_PATH = "./users.db"
+#DATABASE_PATH = os.environ.get("SQLITE_CONNECTION")
 # toolbar = DebugToolbarExtension(app)
 
 
@@ -112,7 +112,7 @@ def login():
                 db = sqlite.connect(DATABASE_PATH)
 
                 if result2.user.credentials.refresh_token:
-                    db.execute(INSERT_COMMAND, (userdata['sub'], userdata['email'], username, userdata['name'], userdata['given_name'], result2.user.credentials.serialize(), 1, []))
+                    db.execute(INSERT_COMMAND, (userdata['sub'], userdata['email'], username, userdata['name'], userdata['given_name'], result2.user.credentials.serialize(), 1, json.dumps([]) ))
                     db.commit()
 
             update_fresh_login(db, userdata['sub'], 1)
@@ -158,7 +158,7 @@ def main(username, auth=False): #Change auth to False in production
 
     fetch_command = "SELECT json_object('sub', sub, 'given_name', given_name, 'credentials', credentials, 'fresh_login', fresh_login, 'hidden_channels', hidden_channels) FROM users WHERE username IS ?;"
     db = sqlite.connect(DATABASE_PATH)
-    #db.row_factory = sqlite.Row
+    db.row_factory = sqlite.Row
     user = db.execute(fetch_command, (username,)).fetchone()
     ic(user)
 
